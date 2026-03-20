@@ -4,12 +4,9 @@
   "repoVersion": "1.0",
   "projectName": "Business Central App",
   "appFolders": [
-    "app",
     "PruebaExt"
   ],
-  "testFolders": [
-    "test"
-  ],
+  "testFolders": [],
   "bcptTestFolders": [],
   "installTestApps": [],
   "runTestsInAllInstalledTestApps": true,
