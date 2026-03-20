@@ -13,13 +13,17 @@ jobs:
   promote:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Create PR from deploy to test_main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          EXISTING_PR=$(gh pr list --base test_main --head deploy --state open --json number --jq 'length')
+          EXISTING_PR=$(gh pr list --repo "${{ github.repository }}" --base test_main --head deploy --state open --json number --jq 'length')
           if [ "$EXISTING_PR" -eq "0" ]; then
             gh pr create \
+              --repo "${{ github.repository }}" \
               --base test_main \
               --head deploy \
               --title "Promote deploy to test_main" \

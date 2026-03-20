@@ -16,13 +16,17 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Create PR from test_deploy to deploy
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          EXISTING_PR=$(gh pr list --base deploy --head test_deploy --state open --json number --jq 'length')
+          EXISTING_PR=$(gh pr list --repo "${{ github.repository }}" --base deploy --head test_deploy --state open --json number --jq 'length')
           if [ "$EXISTING_PR" -eq "0" ]; then
             gh pr create \
+              --repo "${{ github.repository }}" \
               --base deploy \
               --head test_deploy \
               --title "Promote test_deploy to deploy" \
