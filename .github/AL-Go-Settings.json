@@ -1,5 +1,40 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/AL-Go-Actions/v8.3/.Modules/settings.schema.json",
   "type": "PTE",
-  "templateUrl": "https://github.com/microsoft/AL-Go-PTE@main"
+  "templateUrl": "https://github.com/microsoft/AL-Go-PTE@main",
+
+  "runs-on": "windows-latest",
+  "githubRunner": "windows-latest",
+  "pullRequestTrigger": "pull_request",
+
+  "CICDPushBranches": [
+    "deploy",
+    "main"
+  ],
+  "CICDPullRequestBranches": [
+    "test_deploy",
+    "test_main"
+  ],
+
+  "useProjectDependencies": true,
+
+  "enableCodeCop": true,
+  "enableUICop": true,
+  "enablePerTenantExtensionCop": true,
+  "enableAppSourceCop": false,
+  "enableCodeAnalyzersOnTestApps": true,
+
+  "environments": [
+    "SB"
+  ],
+
+  "DeployToSB": {
+    "EnvironmentType": "SaaS",
+    "EnvironmentName": "Sandbox-LSCentral",
+    "Branches": [
+      "deploy"
+    ],
+    "ContinuousDeployment": true,
+    "includeTestAppsInSandboxEnvironment": false
+  }
 }

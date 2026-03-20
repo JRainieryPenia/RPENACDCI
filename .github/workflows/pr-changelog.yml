@@ -1,0 +1,77 @@
+name: Update changelog on PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+    branches:
+      - test_deploy
+      - test_main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  changelog:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Ensure changelog file exists
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            cat <<'EOF' > CHANGELOG.md
+          # Changelog
+
+          Todas las modificaciones relevantes del proyecto se documentan en este archivo.
+
+          ## Unreleased
+          EOF
+          fi
+
+      - name: Update changelog entry for PR
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.actor }}
+          PR_BASE: ${{ github.event.pull_request.base.ref }}
+        run: |
+          ENTRY="- PR #${PR_NUMBER} [${PR_BASE}] ${PR_TITLE} (autor: ${PR_AUTHOR})"
+
+          if grep -Fq "$ENTRY" CHANGELOG.md; then
+            echo "La entrada ya existe en CHANGELOG.md"
+          else
+            awk -v entry="$ENTRY" '
+              BEGIN { inserted=0 }
+              {
+                print
+                if ($0 == "## Unreleased" && inserted == 0) {
+                  print ""
+                  print entry
+                  inserted=1
+                }
+              }
+            ' CHANGELOG.md > CHANGELOG.tmp && mv CHANGELOG.tmp CHANGELOG.md
+          fi
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No hay cambios para commitear"
+          else
+            git add CHANGELOG.md
+            git commit -m "docs: update changelog for PR #${{ github.event.pull_request.number }}"
+            git push
+          fi

@@ -1,0 +1,32 @@
+name: Auto promote test_deploy to deploy
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - test_deploy
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  promote:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PR from test_deploy to deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING_PR=$(gh pr list --base deploy --head test_deploy --state open --json number --jq 'length')
+          if [ "$EXISTING_PR" -eq "0" ]; then
+            gh pr create \
+              --base deploy \
+              --head test_deploy \
+              --title "Promote test_deploy to deploy" \
+              --body "PR automático generado después del merge en test_deploy para promover cambios validados hacia deploy."
+          else
+            echo "Ya existe un PR abierto de test_deploy hacia deploy."
+          fi
