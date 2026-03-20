@@ -4,7 +4,8 @@
   "repoVersion": "1.0",
   "projectName": "Business Central App",
   "appFolders": [
-    "app"
+    "app",
+    "PruebaExt"
   ],
   "testFolders": [
     "test"
