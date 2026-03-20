@@ -25,12 +25,16 @@ jobs:
         run: |
           EXISTING_PR=$(gh pr list --repo "${{ github.repository }}" --base deploy --head test_deploy --state open --json number --jq 'length')
           if [ "$EXISTING_PR" -eq "0" ]; then
-            gh pr create \
+            if ! gh pr create \
               --repo "${{ github.repository }}" \
               --base deploy \
               --head test_deploy \
               --title "Promote test_deploy to deploy" \
-              --body "PR automático generado después del merge en test_deploy para promover cambios validados hacia deploy."
+              --body "PR automático generado después del merge en test_deploy para promover cambios validados hacia deploy."; then
+              echo "No fue posible crear el PR con GITHUB_TOKEN."
+              echo "Habilita en GitHub: Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests."
+              exit 1
+            fi
           else
             echo "Ya existe un PR abierto de test_deploy hacia deploy."
           fi
