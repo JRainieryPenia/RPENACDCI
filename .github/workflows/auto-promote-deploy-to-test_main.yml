@@ -1,0 +1,37 @@
+name: Auto promote deploy to test_main
+
+on:
+  push:
+    branches:
+      - deploy
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create PR from deploy to test_main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING_PR=$(gh pr list --repo "${{ github.repository }}" --base test_main --head deploy --state open --json number --jq 'length')
+          if [ "$EXISTING_PR" -eq "0" ]; then
+            if ! gh pr create \
+              --repo "${{ github.repository }}" \
+              --base test_main \
+              --head deploy \
+              --title "Promote deploy to test_main" \
+              --body "PR automático generado después del push en deploy para volver a validar antes de integrar en main."; then
+              echo "No fue posible crear el PR con GITHUB_TOKEN."
+              echo "Habilita en GitHub: Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests."
+              exit 1
+            fi
+          else
+            echo "Ya existe un PR abierto de deploy hacia test_main."
+          fi

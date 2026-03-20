@@ -1,0 +1,40 @@
+name: Auto promote test_deploy to deploy
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - test_deploy
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  promote:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create PR from test_deploy to deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING_PR=$(gh pr list --repo "${{ github.repository }}" --base deploy --head test_deploy --state open --json number --jq 'length')
+          if [ "$EXISTING_PR" -eq "0" ]; then
+            if ! gh pr create \
+              --repo "${{ github.repository }}" \
+              --base deploy \
+              --head test_deploy \
+              --title "Promote test_deploy to deploy" \
+              --body "PR automático generado después del merge en test_deploy para promover cambios validados hacia deploy."; then
+              echo "No fue posible crear el PR con GITHUB_TOKEN."
+              echo "Habilita en GitHub: Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests."
+              exit 1
+            fi
+          else
+            echo "Ya existe un PR abierto de test_deploy hacia deploy."
+          fi
