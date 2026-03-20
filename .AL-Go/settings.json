@@ -3,7 +3,6 @@
   "country": "W1",
   "repoVersion": "1.0",
   "projectName": "Business Central App",
-
   "appFolders": [
     "app"
   ],
@@ -11,7 +10,6 @@
     "test"
   ],
   "bcptTestFolders": [],
-
   "installTestApps": [],
   "runTestsInAllInstalledTestApps": true,
   "generateDependencyArtifact": true
