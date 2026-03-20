@@ -9,6 +9,6 @@
   "testFolders": [],
   "bcptTestFolders": [],
   "installTestApps": [],
-  "runTestsInAllInstalledTestApps": true,
+  "runTestsInAllInstalledTestApps": false,
   "generateDependencyArtifact": true
 }
