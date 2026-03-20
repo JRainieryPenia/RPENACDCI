@@ -6,7 +6,7 @@
   "runs-on": "windows-latest",
   "githubRunner": "windows-latest",
   "pullRequestTrigger": "pull_request",
-
+ "updateALGoSystemFilesEnvironment": "ALGO-MAINTENANCE",
   "CICDPushBranches": [
     "deploy",
     "main"
